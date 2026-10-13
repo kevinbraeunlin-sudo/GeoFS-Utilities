@@ -4,12 +4,12 @@ A small collection of tools and quality-of-life improvements for GeoFS.
 
 This repository currently contains:
 
-- **GeoFS A350 BTV v1.0.1** — Airbus A350-inspired Brake-To-Vacate, runway overrun monitoring/protection, airport moving map, landing-performance prediction, Analog Brakes integration, and embedded A350-style aural callouts.
+- **GeoFS A350 BTV v1.0.2** — Airbus A350-inspired Brake-To-Vacate, runway overrun monitoring/protection, airport moving map, landing-performance prediction, Analog Brakes integration, and embedded A350-style aural callouts.
 - **GeoFS Analog Brakes v1.0.0** — proportional wheel braking from a joystick/pedal axis instead of the normal on/off brake input.
 
 ---
 
-## GeoFS A350 BTV v1.0.1
+## GeoFS A350 BTV v1.0.2
 
 Airbus A350-inspired Brake-To-Vacate (BTV), runway overrun monitoring/protection (ROW/ROP), airport moving map, and landing-performance visualization for GeoFS.
 
@@ -23,7 +23,7 @@ Airbus A350-inspired Brake-To-Vacate (BTV), runway overrun monitoring/protection
 
 1. Install **Tampermonkey** in your browser if you do not already have it.
 2. Open the userscript here on GitHub:
-   **[GeoFS_A350_BTV_v1.0.1.user.js](./a350-btv/GeoFS_A350_BTV_v1.0.1.user.js)**
+   **[GeoFS_A350_BTV_v1.0.2.user.js](./a350-btv/GeoFS_A350_BTV_v1.0.2.user.js)**
 3. On the file page, click **Raw** in the top-right area of the code view.
 4. Tampermonkey should open its installation screen automatically.
 5. Click **Install**.
