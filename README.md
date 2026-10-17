@@ -6,6 +6,19 @@ This repository currently contains:
 
 - **GeoFS A350 BTV v1.0.3** — Airbus A350-inspired Brake-To-Vacate, runway overrun monitoring/protection, airport moving map, landing-performance prediction, Analog Brakes integration, and embedded A350-style aural callouts.
 - **GeoFS Analog Brakes v1.0.0** — proportional wheel braking from a joystick/pedal axis instead of the normal on/off brake input.
+- **GeoFS Ground Steering v1.0.0** — compact nosewheel steering with aircraft profiles, steering-law selection, pedal calibration and optional A380 controls.
+
+---
+
+## GeoFS Ground Steering v1.0.0
+
+Standalone nosewheel steering for GeoFS, with a compact movable interface matched to the Analog Brakes and BTV design.
+
+- **[Install Ground Steering v1.0.0](./ground-steering/GeoFS_Ground_Steering_v1.0.0.user.js)** — open the file and click **Raw** to install it in Tampermonkey.
+- **[Instructions and known limitations](./ground-steering/README.md)** — setup, steering modes, calibration, model compatibility and troubleshooting.
+- Disable older Ground Steering test scripts before installing this release to prevent competing commands.
+
+Note: Steering compatibility varies by GeoFS aircraft model; some community aircraft still have unsupported or weak nosewheel steering.
 
 ---
 
