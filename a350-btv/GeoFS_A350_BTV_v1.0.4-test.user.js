@@ -34,7 +34,9 @@
     const PERF_LANDING_SPEED_STORAGE_KEY = 'kb-geofs-brake-target-performance-landing-speed-kts';
     const AIRPORT_STORAGE_KEY = 'kb-geofs-brake-target-airport-icao';
     const PERF_REVERSE_STORAGE_KEY = 'kb-geofs-brake-target-perf-reverse-mode';
-    const PERF_CAL_STORAGE_KEY = 'kb-geofs-brake-target-perf-cal-v2';
+    // New learning schema: never trust old v2 samples categorized by the selected
+    // display line instead of the physical reverser setting.
+    const PERF_CAL_STORAGE_KEY = 'kb-geofs-brake-target-perf-cal-v3';
     const PERF_MANUAL_STORAGE_KEY = 'kb-geofs-btv-full-brake-calibration-v1';
     const UI_POSITION_STORAGE_KEY = 'kb-geofs-brake-target-ui-position-v1';
     const UI_LAUNCHER_POSITION_STORAGE_KEY = 'kb-geofs-brake-target-ui-launcher-position-v1';
@@ -3316,6 +3318,9 @@
             maxRevLine: makeLine(null),
             maxRevBar: makeBar(),
             maxRevLabel: makeLabel(),
+            liveStopLine: makeLine('3 4'),
+            liveStopBar: makeBar(),
+            liveStopLabel: makeLabel(),
         };
         for (const layer of Object.values(state.performanceMapLayers)) airportMapLayer(layer);
     }
@@ -3377,6 +3382,35 @@
                 selected
             );
         }
+
+        // Dynamic orange marker: actual measured total deceleration projected
+        // from the CURRENT aircraft position. Independent of frozen TDZ plan.
+        const live = currentLiveRop(aircraft || getAircraftState());
+        const hideLive = () => {
+            for (const key of ['liveStopLine', 'liveStopBar', 'liveStopLabel']) {
+                const layer = layers[key];
+                try { layer?.setOpacity?.(0); layer?.setStyle?.({ opacity: 0 }); } catch (_) {}
+            }
+        };
+        if (live.valid) {
+            const exceedsEnd = live.measuredStopAlongM > perf.axis.lengthM;
+            const displayAlongM = Math.min(live.measuredStopAlongM, perf.axis.lengthM);
+            const start = runwayPointAtAlong(perf.axis, live.alongM);
+            const stop = runwayPointAtAlong(perf.axis, displayAlongM);
+            const bar = runwayStopBar(perf.axis, displayAlongM);
+            if (start && stop && bar) {
+                const color = exceedsEnd ? '#ff9b56' : '#ffd166';
+                try {
+                    layers.liveStopLine?.setLatLngs([[start.lat, start.lon], [stop.lat, stop.lon]]);
+                    layers.liveStopLine?.setStyle({ color, opacity: 0.82, weight: 2.8 });
+                    layers.liveStopBar?.setLatLngs(bar.map(p => [p.lat, p.lon]));
+                    layers.liveStopBar?.setStyle({ color, opacity: 0.95, weight: 3.5 });
+                    setPerformanceLabel(layers.liveStopLabel, L, stop,
+                        exceedsEnd ? `ACT STOP · +${Math.round(live.measuredStopAlongM - perf.axis.lengthM)}M`
+                                   : 'ACT STOP', color, false);
+                } catch (_) {}
+            } else hideLive();
+        } else hideLive();
         return perf;
     }
 
@@ -4808,8 +4842,10 @@
         if (state.perfLiveLabel) state.perfLiveLabel.textContent = perfText;
         if (state.liveStopLabel) {
             const live = currentLiveRop(aircraft);
+            const endMarginM = live.valid
+                ? Math.round(live.remainingM - live.measuredStopDistanceM) : null;
             state.liveStopLabel.textContent = live.valid
-                ? `LIVE ${Math.round(live.speedKts)}KT · ACT ${perfDistanceShort(live.measuredStopDistanceM)} · NR ${perfDistanceShort(live.noRevDistanceM)} · MR ${perfDistanceShort(live.maxRevDistanceM)} · NEED ${Math.round(live.requiredBrakeRatio * 100)}%`
+                ? `LIVE ${Math.round(live.speedKts)}KT · ACT ${perfDistanceShort(live.measuredStopDistanceM)} · END ${endMarginM >= 0 ? '+' : ''}${endMarginM}M · NEED ${Math.round(live.requiredBrakeRatio * 100)}%`
                 : 'LIVE STOP · ---';
         }
         updatePerformanceModeButtons();
